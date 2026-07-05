@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QuizoGame Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:linear-gradient(-45deg,#6a11cb,#2575fc,#00c9ff,#fc00ff);background-size:400% 400%;animation:bg 12s ease infinite;color:#fff}
+@keyframes bg{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+.hidden{display:none}
+.wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{width:min(430px,100%);background:rgba(255,255,255,.15);backdrop-filter:blur(18px);padding:30px;border-radius:24px;box-shadow:0 15px 40px rgba(0,0,0,.3)}
+h1{text-align:center;font-size:2.2rem}
+.sub{text-align:center;margin:8px 0 20px;color:#f2f2f2}
+input{width:100%;padding:14px;margin:10px 0;border:none;border-radius:12px}
+button{cursor:pointer;border:none;border-radius:12px;padding:14px 18px;background:linear-gradient(90deg,#00dbde,#fc00ff);color:#fff;font-weight:700;transition:.25s}
+button:hover{transform:translateY(-2px) scale(1.02)}
+.err{color:#ffeb3b;text-align:center;margin-top:8px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:rgba(0,0,0,.2);backdrop-filter:blur(10px)}
+main{max-width:900px;margin:40px auto;padding:20px}
+.hero{text-align:center}
+.hero h2{font-size:2.5rem}
+.play{margin-top:25px}
+.panel{background:#fff;color:#222;border-radius:20px;padding:25px;box-shadow:0 15px 30px rgba(0,0,0,.2)}
+.progress{height:12px;background:#ddd;border-radius:999px;margin:15px 0;overflow:hidden}
+.fill{height:100%;width:0;background:#6a11cb;transition:.3s}
+.opt{display:block;width:100%;margin:10px 0;background:#eef2ff;color:#222}
+.opt.sel{background:#28a745;color:#fff}
+.row{display:flex;justify-content:space-between;align-items:center}
+.timer{font-weight:700;color:#6a11cb}
+.result{text-align:center}
+.scorebig{font-size:3rem;color:#6a11cb}
+table{width:100%;margin-top:20px;border-collapse:collapse}
+td,th{padding:10px;border-bottom:1px solid #ddd;text-align:left}
+</style>
+</head>
+<body>
+<div id="login" class="wrap">
+<div class="card">
+<h1>🎮 QuizoGame Pro</h1>
+<p class="sub">Register to start your challenge</p>
+<input id="n" placeholder="Full Name">
+<input id="e" type="email" placeholder="Email">
+<input id="m" placeholder="Mobile Number" maxlength="10">
+<button onclick="go()">Enter Game</button>
+<div id="err" class="err"></div>
+</div></div>
+
+<div id="app" class="hidden">
+<nav><strong>🎮 QuizoGame Pro</strong><div id="user"></div></nav>
+<main>
+<section id="home" class="hero">
+<h2>Ready to Test Your Knowledge?</h2>
+<p>Modern quiz experience with timer, leaderboard and score saving.</p>
+<button class="play" onclick="start()">▶ Start Quiz</button>
+</section>
+
+<section id="quiz" class="panel hidden">
+<div class="row"><strong id="qno"></strong><span class="timer">⏱ <span id="time">15</span>s</span></div>
+<div class="progress"><div id="fill" class="fill"></div></div>
+<h2 id="q"></h2>
+<div id="opts"></div>
+<button onclick="next()">Next</button>
+</section>
+
+<section id="result" class="panel hidden result">
+<h2>🏆 Congratulations!</h2>
+<div class="scorebig" id="final"></div>
+<p id="msg"></p>
+<button onclick="restart()">Play Again</button>
+<h3 style="margin-top:25px">Leaderboard (Local)</h3>
+<table><thead><tr><th>Name</th><th>Score</th></tr></thead><tbody id="board"></tbody></table>
+</section>
+</main>
+</div>
+
+<script>
+const qs=[
+["HTML stands for?",["Hyper Text Markup Language","Home Tool","High Text","Hyper Transfer"],0],
+["CSS is used for?",["Styling","Database","AI","Compiler"],0],
+["JavaScript makes pages?",["Static","Interactive","Offline","Encrypted"],1],
+["Which tag creates a link?",["a","div","img","p"],0],
+["Which is not a programming language?",["Python","Java","CSS","C++"],2],
+["2 + 8 =",["8","10","12","14"],1]
+];
+let i=0,s=0,sel=-1,t=15,intv;
+
+function go(){
+let name=n.value.trim(),email=e.value.trim(),mob=m.value.trim();
+if(!name)return err.textContent="Enter your name";
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return err.textContent="Invalid email";
+if(!/^\d{10}$/.test(mob))return err.textContent="Invalid mobile number";
+localStorage.setItem("player",name);
+login.classList.add("hidden");app.classList.remove("hidden");
+user.textContent="👋 "+name;
+}
+function start(){home.classList.add("hidden");quiz.classList.remove("hidden");load();}
+function load(){
+sel=-1;t=15;time.textContent=t;
+clearInterval(intv);
+intv=setInterval(()=>{t--;time.textContent=t;if(t<=0){clearInterval(intv);next();}},1000);
+qno.textContent=`Question ${i+1}/${qs.length}`;
+fill.style.width=(i/qs.length*100)+"%";
+q.textContent=qs[i][0];
+opts.innerHTML="";
+qs[i][1].forEach((o,idx)=>{
+let b=document.createElement("button");
+b.className="opt";b.textContent=o;
+b.onclick=()=>{document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel=idx;}
+opts.appendChild(b);
+});
+}
+function next(){
+clearInterval(intv);
+if(sel===qs[i][2])s++;
+i++;
+if(i<qs.length)load();else finish();
+}
+function finish(){
+quiz.classList.add("hidden");result.classList.remove("hidden");
+fill.style.width="100%";
+final.textContent=`${s}/${qs.length}`;
+msg.textContent=s>=5?"Excellent!":"Keep practicing!";
+let lb=JSON.parse(localStorage.getItem("leaderboard")||"[]");
+lb.push({name:localStorage.getItem("player"),score:s});
+lb.sort((a,b)=>b.score-a.score);
+lb=lb.slice(0,10);
+localStorage.setItem("leaderboard",JSON.stringify(lb));
+board.innerHTML=lb.map(x=>`<tr><td>${x.name}</td><td>${x.score}</td></tr>`).join("");
+}
+function restart(){i=0;s=0;result.classList.add("hidden");quiz.classList.remove("hidden");load();}
+</script>
+</body>
+</html>
