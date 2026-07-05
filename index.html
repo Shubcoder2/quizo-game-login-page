@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>QuizoGame</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{min-height:100vh;background:linear-gradient(-45deg,#6a11cb,#2575fc,#00dbde,#fc00ff);background-size:400% 400%;animation:bg 12s ease infinite}
+@keyframes bg{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+.center{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+.card{width:420px;background:rgba(255,255,255,.16);backdrop-filter:blur(15px);border-radius:20px;padding:30px;box-shadow:0 10px 35px rgba(0,0,0,.35);color:#fff}
+h1{text-align:center;margin-bottom:8px}
+p{text-align:center;margin-bottom:20px}
+input{width:100%;padding:14px;margin:10px 0;border:none;border-radius:10px}
+button{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(90deg,#00dbde,#fc00ff);color:#fff;font-size:17px;cursor:pointer;transition:.3s}
+button:hover{transform:scale(1.03)}
+#error{color:#ffeb3b;text-align:center;margin-top:10px}
+#app{display:none;background:#f5f8ff;min-height:100vh}
+nav{display:flex;justify-content:space-between;align-items:center;padding:18px 30px;background:#5b5ff7;color:#fff}
+nav button{width:auto;padding:10px 18px;background:#ff4d4d}
+.hero{text-align:center;padding:40px}
+.hero h2{color:#5b5ff7}
+.play{width:220px;margin:20px auto}
+.quiz{display:none;max-width:760px;margin:20px auto;background:#fff;padding:25px;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.15)}
+.progress{height:10px;background:#ddd;border-radius:10px;overflow:hidden;margin:15px 0}
+.bar{height:100%;width:0;background:#5b5ff7}
+.option{display:block;width:100%;margin:10px 0;background:#eef2ff;color:#222}
+.option:hover{background:#5b5ff7}
+.result{display:none;text-align:center;padding:40px}
+</style>
+</head>
+<body>
+
+<div class="center" id="login">
+<div class="card">
+<h1>🎮 QuizoGame</h1>
+<p>Register to Start</p>
+<input id="name" placeholder="Full Name">
+<input id="email" type="email" placeholder="Email">
+<input id="mobile" placeholder="Mobile Number" maxlength="10">
+<button onclick="login()">Start Quiz</button>
+<div id="error"></div>
+</div>
+</div>
+
+<div id="app">
+<nav><h2>🎮 QuizoGame</h2><button onclick="location.reload()">Logout</button></nav>
+
+<div class="hero" id="hero">
+<h2 id="welcome"></h2>
+<h1>Welcome to QuizoGame</h1>
+<p>Test your knowledge and beat your high score!</p>
+<button class="play" onclick="startQuiz()">Play Quiz</button>
+</div>
+
+<div class="quiz" id="quiz">
+<div class="progress"><div class="bar" id="bar"></div></div>
+<h2 id="question"></h2>
+<div id="answers"></div>
+<button onclick="nextQuestion()">Next</button>
+</div>
+
+<div class="result" id="result">
+<h1>🏆 Quiz Completed!</h1>
+<h2 id="score"></h2>
+<button onclick="restart()">Play Again</button>
+</div>
+</div>
+
+<script>
+const questions=[
+{q:"HTML stands for?",a:["Hyper Text Markup Language","High Text","Home Tool","Hyper Transfer"],c:0},
+{q:"CSS is used for?",a:["Programming","Styling","Database","Hosting"],c:1},
+{q:"JavaScript is used for?",a:["Styling","Structure","Interactivity","Storage"],c:2},
+{q:"Which tag creates a link?",a:["img","a","p","div"],c:1},
+{q:"Which company developed JavaScript?",a:["Apple","Google","Netscape","IBM"],c:2}
+];
+let current=0,score=0,selected=-1;
+
+function login(){
+let n=name.value.trim(),e=email.value.trim(),m=mobile.value.trim();
+if(!n){error.innerText="Enter your name";return;}
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){error.innerText="Enter valid email";return;}
+if(!/^\d{10}$/.test(m)){error.innerText="Enter valid 10-digit mobile";return;}
+welcome.innerText="Hello, "+n+" 👋";
+login.style.display="none";
+app.style.display="block";
+}
+function startQuiz(){hero.style.display="none";quiz.style.display="block";load();}
+function load(){
+selected=-1;
+bar.style.width=((current)/questions.length*100)+"%";
+question.innerText=(current+1)+". "+questions[current].q;
+answers.innerHTML="";
+questions[current].a.forEach((x,i)=>{
+let b=document.createElement("button");
+b.className="option";
+b.innerText=x;
+b.onclick=()=>{selected=i;document.querySelectorAll(".option").forEach(o=>o.style.background="#eef2ff");b.style.background="#28a745";b.style.color="#fff";}
+answers.appendChild(b);
+});
+}
+function nextQuestion(){
+if(selected==-1){alert("Select an answer");return;}
+if(selected===questions[current].c)score++;
+current++;
+if(current<questions.length)load();
+else{
+quiz.style.display="none";
+result.style.display="block";
+bar.style.width="100%";
+document.getElementById("score").innerText="You scored "+score+" out of "+questions.length;
+}
+}
+function restart(){current=0;score=0;selected=-1;result.style.display="none";quiz.style.display="block";load();}
+</script>
+</body>
+</html>
