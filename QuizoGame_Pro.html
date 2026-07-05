@@ -132,6 +132,8 @@ localStorage.setItem("leaderboard",JSON.stringify(lb));
 board.innerHTML=lb.map(x=>`<tr><td>${x.name}</td><td>${x.score}</td></tr>`).join("");
 }
 function restart(){i=0;s=0;result.classList.add("hidden");quiz.classList.remove("hidden");load();}
+</script> <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="weuQv62k2JahJBbB8gWpk";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
 </script>
 </body>
 </html>
